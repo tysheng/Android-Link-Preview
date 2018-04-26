@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -32,9 +31,16 @@ import com.leocardz.link.preview.library.TextCrawler;
 import java.util.List;
 import java.util.Random;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Function;
+import io.reactivex.schedulers.Schedulers;
+
 
 @SuppressWarnings("unused")
-public class Main extends ActionBarActivity {
+public class Main extends Activity {
 
     private EditText editText, editTextTitlePost, editTextDescriptionPost;
     private Button submitButton, postButton, randomButton;
@@ -194,7 +200,7 @@ public class Main extends ActionBarActivity {
                     descriptionTextView.setVisibility(View.GONE);
 
                 urlTextView.setText(currentCannonicalUrl);
-                
+
                 final String currentUrlLocal = currentUrl;
 
                 mainView.setOnClickListener(new OnClickListener() {
@@ -222,10 +228,27 @@ public class Main extends ActionBarActivity {
 
             @Override
             public void onClick(View arg0) {
-
-                textCrawler
-                        .makePreview(callback, editText.getText().toString());
-                // , TextCrawler.NONE);
+                Disposable subscribe = Observable.just(editText.getText().toString())
+                        .map(new Function<String, SourceContent>() {
+                            @Override
+                            public SourceContent apply(String s) throws Exception {
+                                return textCrawler.makePreviewSync(s);
+                            }
+                        })
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .doOnSubscribe(new Consumer<Disposable>() {
+                            @Override
+                            public void accept(Disposable disposable) throws Exception {
+                                callback.onPre();
+                            }
+                        })
+                        .subscribe(new Consumer<SourceContent>() {
+                            @Override
+                            public void accept(SourceContent sourceContent) throws Exception {
+                                callback.onPos(sourceContent, textCrawler.isNull(sourceContent));
+                            }
+                        });
             }
         });
     }
