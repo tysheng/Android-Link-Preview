@@ -10,7 +10,7 @@ public class SearchUrls {
 
 	/** It finds urls inside the text and return the matched ones */
 	public static ArrayList<String> matches(String text) {
-		return matches(text, ALL);
+		return matches(text, FIRST);
 	}
 
 	/** It finds urls inside the text and return the matched ones */

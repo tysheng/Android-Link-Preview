@@ -1,6 +1,7 @@
 package com.leocardz.link.preview.library;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -187,4 +188,20 @@ public class SourceContent {
 		this.urlData = urlData;
 	}
 
+	@Override
+	public String toString() {
+		return "SourceContent{" +
+				"success=" + success +
+				", htmlCode='" + htmlCode + '\'' +
+				", raw='" + raw + '\'' +
+				", title='" + title + '\'' +
+				", description='" + description + '\'' +
+				", url='" + url + '\'' +
+				", finalUrl='" + finalUrl + '\'' +
+				", cannonicalUrl='" + cannonicalUrl + '\'' +
+				", metaTags=" + metaTags +
+				", images=" + images +
+				", urlData=" + Arrays.toString(urlData) +
+				'}';
+	}
 }

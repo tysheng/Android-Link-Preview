@@ -1,6 +1,7 @@
 package com.leocardz.link.preview.library;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -22,7 +23,7 @@ public class TextCrawler {
 
     private final String HTTP_PROTOCOL = "http://";
     private final String HTTPS_PROTOCOL = "https://";
-
+    private static final String TAG = "TextCrawler";
     private LinkPreviewCallback callback;
 
     private AsyncTask getCodeTask;
@@ -59,8 +60,9 @@ public class TextCrawler {
 
     private void process(SourceContent sourceContent, int imageQuantity, String url) {
         // Don't forget the http:// or https://
-        ArrayList<String> urls = SearchUrls.matches(url);
+        List<String> urls = SearchUrls.matches(url);
 
+        Log.d(TAG, "process: " + urls);
         if (urls.size() > 0)
             sourceContent
                     .setFinalUrl(unshortenUrl(extendedTrim(urls.get(0))));
@@ -145,7 +147,9 @@ public class TextCrawler {
      * Verifies if the content could not be retrieved
      */
     public boolean isNull(SourceContent sourceContent) {
-        return !sourceContent.isSuccess() &&
+        boolean success = sourceContent.isSuccess();
+        Log.d(TAG, "isNull: " + sourceContent.toString());
+        return !success &&
                 extendedTrim(sourceContent.getHtmlCode()).equals("") &&
                 !isImage(sourceContent.getFinalUrl());
     }
@@ -387,7 +391,7 @@ public class TextCrawler {
         while (!shortURL.equals(finalResult)) {
             finalResult = unshortenUrl(finalResult);
         }
-
+        Log.d(TAG, "unshortenUrl: " + finalResult);
         return finalResult;
     }
 
@@ -400,9 +404,9 @@ public class TextCrawler {
             URL inputURL = new URL(strURL);
             conn = inputURL.openConnection();
         } catch (MalformedURLException e) {
-            System.out.println("Please input a valid URL");
+            Log.d(TAG, "connectURL: Please input a valid URL");
         } catch (IOException ioe) {
-            System.out.println("Can not connect to the URL");
+            Log.d(TAG, "connectURL: Can not connect to the URL");
         }
         return conn;
     }
